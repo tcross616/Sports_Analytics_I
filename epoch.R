@@ -1,4 +1,3 @@
-
 run_epoch <- function(down, ytg, fp) {
   score <- 0
   team <- 1 # 1 for "reference team", -1 for "opponent"
@@ -15,4 +14,3 @@ run_epoch <- function(down, ytg, fp) {
   
   return(score)
 }
-
