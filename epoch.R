@@ -1,8 +1,8 @@
 
 run_epoch <- function(down, ytg, fp) {
   score <- 0
-  team <- 1
-  drives <- 0
+  team <- 1 # 1 for "reference team", -1 for "opponent"
+  drives <- 0 
   
 
   while (score == 0 && drives < 10) {
