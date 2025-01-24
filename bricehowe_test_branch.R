@@ -1,2 +1,2 @@
-This is a test line from a different branch
+this is a test line
 This is a merge test line
