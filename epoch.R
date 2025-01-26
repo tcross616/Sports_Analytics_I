@@ -1,4 +1,3 @@
-
 run_epoch <- function(down, ytg, fp) {
   score <- 0
   team <- 1
