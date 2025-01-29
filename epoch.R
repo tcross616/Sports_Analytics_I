@@ -12,5 +12,5 @@ run_epoch <- function(down, ytg, fp) {
     drives <- drives + 1
   }
   
-  return(score)
-} #comment
+  score
+} 
