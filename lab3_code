@@ -73,3 +73,96 @@ rankings <- rankings %>% arrange(desc(Score))
 print(rankings)
 
 
+# Part 2: Analyze seasonal trends in team rankings using PageRank
+library(ggplot2)
+library(dplyr)
+
+# Prepare to collect rankings across all seasons
+seasons <- unique(game_data$season)
+all_rankings <- data.frame()
+
+# Get top 5 teams from Part 1 rankings for comparison
+top_teams <- head(rankings$Team, 5)  # Use rankings from Part 1
+
+for (s in seasons) {
+  # Subset data for the current season
+  season_subset <- game_data[game_data$season == s, ]
+  teams_s <- unique(c(season_subset$Visiting_Team, season_subset$Home_Team))
+  n_teams_s <- length(teams_s)
+  
+  if (n_teams_s < 2) next  # Skip invalid seasons
+  
+  # Initialize transition matrix for the season
+  trans_counts <- matrix(0, nrow = n_teams_s, ncol = n_teams_s,
+                         dimnames = list(teams_s, teams_s))
+  
+  # Populate transition counts for the season
+  for (i in 1:nrow(season_subset)) {
+    game <- season_subset[i, ]
+    visitor <- game$Visiting_Team
+    home <- game$Home_Team
+    v_score <- game$Visiting_Score
+    h_score <- game$Home_Score
+    
+    if (v_score < h_score) {
+      loser <- visitor
+      winner <- home
+    } else if (v_score > h_score) {
+      loser <- home
+      winner <- visitor
+    } else {
+      next
+    }
+    
+    trans_counts[loser, winner] <- trans_counts[loser, winner] + 1
+  }
+  
+  # Normalize the transition matrix
+  row_sums <- rowSums(trans_counts)
+  if (any(row_sums == 0)) {
+    trans_counts[row_sums == 0, ] <- 1
+    row_sums[row_sums == 0] <- n_teams_s
+  }
+  trans_matrix <- trans_counts / row_sums
+  
+  # Compute seasonal steady-state
+  b_season <- matrix(rep(1/n_teams_s, n_teams_s), nrow = 1)
+  for (i in 1:1000) {
+    b_season <- b_season %*% trans_matrix
+  }
+  
+  # Store rankings
+  steady_state_season <- as.vector(b_season)
+  names(steady_state_season) <- teams_s
+  ranked_teams <- names(sort(steady_state_season, decreasing = TRUE))
+  
+  rankings_df <- data.frame(
+    season = s,
+    team = teams_s,
+    rank = match(teams_s, ranked_teams),  
+    pagerank = steady_state_season
+  )
+  
+  all_rankings <- rbind(all_rankings, rankings_df)
+}
+
+# Filter for top teams from Part 1 
+seasonal_top <- all_rankings %>% 
+  filter(team %in% top_teams) %>%
+  arrange(season, rank)
+
+# Convert season to ordered factor for proper plotting
+seasonal_top$season <- factor(seasonal_top$season, 
+                             levels = sort(unique(seasons)))
+
+# Create the plot (FIXED: use rank for y-axis)
+ggplot(seasonal_top, aes(x = season, y = rank, color = team, group = team)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_y_reverse(breaks = 1:30) +  # Better ranking visualization
+  labs(title = "Seasonal Rankings of Top 5 Teams per Part 1 (2014-2024)",
+       x = "Season", y = "PageRank Rank", color = "Team") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("seasonal_rankings.png", width = 10, height = 6)
