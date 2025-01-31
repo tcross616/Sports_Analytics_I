@@ -1,8 +1,3 @@
-run_drive <- function(down, ytg, fp) {
-  
-  new_fp <- fp + sample(-10:20, 1)  
-  return(new_fp)
-}
 process_drive_result <- function(fp) {
   if (fp > 80) return(7)
   if (fp > 40) return(3) 
