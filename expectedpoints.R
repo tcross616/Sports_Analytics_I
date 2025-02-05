@@ -1,6 +1,9 @@
-expected_points <- function(down, ytg, fp, n = 1000) {
+source("epoch.R")
+
+expected_points <- function(down, ytg, fp) {
   # Initialize a numeric vector to store scores from multiple simulations
-  scores <- numeric(n)
+  n<-1000
+  scores <- rep(NA, n)
   
   # Run n simulations (default 1000) to estimate expected points
   for (i in 1:n) {
