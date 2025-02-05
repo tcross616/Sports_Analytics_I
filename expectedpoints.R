@@ -1,4 +1,4 @@
-source("epoch.R")
+
 
 expected_points <- function(down, ytg, fp) {
   # Initialize a numeric vector to store scores from multiple simulations
