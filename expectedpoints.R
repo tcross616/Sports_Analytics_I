@@ -8,6 +8,12 @@ get_EP <- function(down, ytg, fp) {
   # create a vector to store points from our simulation.  For now, we will run
   # 1000.  This is something that a user might want to control, so later we 
   # will allow it to be passed in as an argument.
+
+
+expected_points <- function(down, ytg, fp) {
+  # Initialize a numeric vector to store scores from multiple simulations
+  n<-1000
+  scores <- rep(NA, n)
   
   n <- 1000 # Always try to avoid "hard coding" by putting numbers that _could_
   # change into the "working part" of the code, especially if that
@@ -44,3 +50,6 @@ get_EP <- function(down, ytg, fp) {
 # get_EP function, you should really go to the "working_get_EP_function" branch.
 get_EP(2, 5, 34)
 get_EP(1, 10, 61)
+  # Return the average score over all simulations, representing expected points
+  mean(scores)
+}
