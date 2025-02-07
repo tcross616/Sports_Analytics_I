@@ -90,13 +90,11 @@ for (s in seasons) {
   teams_s <- unique(c(season_subset$Visiting_Team, season_subset$Home_Team))
   n_teams_s <- length(teams_s)
   
-  if (n_teams_s < 2) next  # Skip invalid seasons
-  
   # Initialize transition matrix for the season
   trans_counts <- matrix(0, nrow = n_teams_s, ncol = n_teams_s,
                          dimnames = list(teams_s, teams_s))
   
-  # Populate transition counts for the season
+  # Populate transition counts for each season
   for (i in 1:nrow(season_subset)) {
     game <- season_subset[i, ]
     visitor <- game$Visiting_Team
@@ -117,7 +115,7 @@ for (s in seasons) {
     trans_counts[loser, winner] <- trans_counts[loser, winner] + 1
   }
   
-  # Normalize the transition matrix
+  # Normalize the transition matrix using same method from p1
   row_sums <- rowSums(trans_counts)
   if (any(row_sums == 0)) {
     trans_counts[row_sums == 0, ] <- 1
@@ -125,7 +123,7 @@ for (s in seasons) {
   }
   trans_matrix <- trans_counts / row_sums
   
-  # Compute seasonal steady-state
+  # Compute seasonal steady-state based on p1
   b_season <- matrix(rep(1/n_teams_s, n_teams_s), nrow = 1)
   for (i in 1:1000) {
     b_season <- b_season %*% trans_matrix
