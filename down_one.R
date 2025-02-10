@@ -4,5 +4,5 @@ down_one <- function(ytg, fp) {
   new_ytg <- max(ytg - yards_gained, 1)
   down <- ifelse(new_ytg <= 0, 1, 2)  # Reset to 1st down if achieved
 
-  return(list(down = down, ytg = new_ytg, fp = new_fp, exit_drive = 0))
+  list(down = down, ytg = new_ytg, fp = new_fp, exit_drive = 0)
 }
