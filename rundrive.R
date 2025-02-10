@@ -9,6 +9,6 @@ run_drive <- function(down, ytg, fp) {
     run_drive(new_state$down, new_state$ytg, new_state$fp)
   } else {
     # Drive is finished, so return the state for the epoch-level processing.
-    return(list(down = new_state$down, ytg = new_state$ytg, fp = new_state$fp))
+    list(down = new_state$down, ytg = new_state$ytg, fp = new_state$fp)
   }
 }
