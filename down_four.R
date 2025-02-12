@@ -40,8 +40,8 @@ down_four <- function(ytg, fp) {
     field_goal_success <- sample(c(TRUE, FALSE), 1, prob = c(0.65, 0.35))
     
     if (field_goal_success) {
-      # If successful, the team scores and the opponent starts from their own 25-yard line (fp = 115).
-      list(down = 1, ytg = 10, fp = 115, exit_drive = 1)
+      # If successful, the team scores and the opponent starts from their own 25-yard line
+      list(down = 1, ytg = 10, fp = 25, exit_drive = 1)
     } else {
       # If missed, the opponent takes over possession at the previous fp minus 7 yards.
       list(down = 1, ytg = 10, fp = fp - 7, exit_drive = 1)
