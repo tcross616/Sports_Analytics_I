@@ -28,23 +28,27 @@ down_four <- function(ytg, fp) {
     
     # If the team gains enough yards for a first down, reset the down to 1.
     # Otherwise, they are still on fourth down.
-    down <- ifelse(new_ytg <= 0, 1, 4)
-
-    # Return the updated game state; exit_drive remains 0 because the drive continues.
-    list(down = down, ytg = new_ytg, fp = new_fp, exit_drive = 0)
+    if (new_ytg <= 0) {
+      # First down achieved, drive continues
+      list(down = 1, ytg = 10, fp = new_fp, exit_drive = 0)
+    } else {
+      # Turnover on downs, opponent takes over with flipped field position
+      list(down = 1, ytg = 10, fp = 100 - new_fp, exit_drive = 1)
+    }
   } 
   # Handling the case where the team attempts a field goal.
   else if (outcome == "field_goal") {
     # Simulating whether the field goal attempt is successful.
-    # The probability of success is 80%.
+    # The probability of success is 65%.
     field_goal_success <- sample(c(TRUE, FALSE), 1, prob = c(0.65, 0.35))
     
     if (field_goal_success) {
       # If successful, the team scores and the opponent starts from their own 25-yard line
       list(down = 1, ytg = 10, fp = 25, exit_drive = 1)
     } else {
-      # If missed, the opponent takes over possession at the previous fp minus 7 yards.
-      list(down = 1, ytg = 10, fp = fp - 7, exit_drive = 1)
+      # If missed, the opponent takes over possession at the previous fp minus 7 yards,
+      # with the field position flipped.
+      list(down = 1, ytg = 10, fp = 100 - (fp - 7), exit_drive = 1)
     }
   } 
   # Handling the punt scenario.
@@ -53,6 +57,7 @@ down_four <- function(ytg, fp) {
     punt_distance <- sample(35:50, 1)
     
     # The opponent takes over possession after the punt, ensuring fp does not go below 0.
-    list(down = 1, ytg = 10, fp = max(fp - punt_distance, 0), exit_drive = 1)
+    # The field position is flipped so that it is correct for the new possession.
+    list(down = 1, ytg = 10, fp = 100 - max(fp - punt_distance, 0), exit_drive = 1)
   }
 }
