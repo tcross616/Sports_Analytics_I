@@ -4,12 +4,12 @@ down_four <- function(ytg, fp) {
   if (ytg < 2 && fp > 50) {  
     outcome <- "go_for_it"
   } 
-  # Otherwise, if the field position is greater than 30, the team decides between punting or attempting a field goal.
+  # Otherwise, if the field position is greater than 63, the team decides between punting or attempting a field goal.
   # There is a 70% chance of punting and a 30% chance of attempting a field goal.
   else if (fp > 63) {  
     outcome <- sample(c("punt", "field_goal"), 1, prob = c(0.3, 0.7))
   } 
-  # If the field position is 30 or less, the team always punts.
+  # If the field position is 63 or less, the team always punts.
   else {  
     outcome <- "punt"
   }
