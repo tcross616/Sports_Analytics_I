@@ -1,63 +1,57 @@
 down_four <- function(ytg, fp) {
-  # If the yards to go (ytg) is less than 2 and the field position (fp) is beyond the 50-yard line,
-  # the team is more likely to go for it on fourth down.
-  if (ytg < 2 && fp > 50) {  
-    outcome <- "go_for_it"
-  } 
-  # Otherwise, if the field position is greater than 63, the team decides between punting or attempting a field goal.
-  # There is a 70% chance of punting and a 30% chance of attempting a field goal.
-  else if (fp > 63) {  
-    outcome <- sample(c("punt", "field_goal"), 1, prob = c(0.3, 0.7))
-  } 
-  # If the field position is 63 or less, the team always punts.
-  else {  
-    outcome <- "punt"
-  }
+  
+  #    Using our multinomial model to decide between three options.
+  #    Since nflfastR dataset typically defines 'yardline_100' as the yards
+  #    away from the defense's end zone, and our 'fp' is yards from the
+  #    offense's own end zone, we changed yardline_100 = 100 - fp.
+  
+  yardline_100 <- 100 - fp
+  prob_decisions <- estimate_decision_probabilities(yardline = yardline_100, ytg = ytg)
 
-  # Handling the case where the team decides to go for it.
+  outcome <- sample(
+    x    = c("go_for_it", "punt", "field_goal"),
+    size = 1,
+    prob = prob_decisions
+  )
+  # Executing whichever outcome was chosen
+  
   if (outcome == "go_for_it") {
-    # Simulating the yards gained or lost on the play.
-    # The probabilities favor small gains, with a small chance of losing yards.
-    yards_gained <- sample(-2:5, 1, prob = c(rep(0.2, 2), rep(0.6, 5)))
+    # Simulating yards gained
+    yards_gained <- sample(-2:5, 1, prob = c(0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1))
     
-    # Updating the new field position after the play.
     new_fp <- fp + yards_gained
+    new_ytg <- max(ytg - yards_gained, 1)  
     
-    # Updating the new yards to go for the first down.
-    new_ytg <- max(ytg - yards_gained, 1)  # Ensures ytg never goes below 1
-    
-    # If the team gains enough yards for a first down, reset the down to 1.
-    # Otherwise, they are still on fourth down.
     if (new_ytg <= 0) {
-      # First down achieved, drive continues
+      # First down achieved: new set of downs, continue the drive
       list(down = 1, ytg = 10, fp = new_fp, exit_drive = 0)
     } else {
-      # Turnover on downs, opponent takes over with flipped field position
+      # Failed conversion => turnover on downs => flip field position
       list(down = 1, ytg = 10, fp = 100 - new_fp, exit_drive = 1)
     }
-  } 
-  # Handling the case where the team attempts a field goal.
-  else if (outcome == "field_goal") {
-    # Simulating whether the field goal attempt is successful.
-    # The probability of success is 65%.
-    field_goal_success <- sample(c(TRUE, FALSE), 1, prob = c(0.65, 0.35))
+    
+  } else if (outcome == "field_goal") {
+    # using logistic regression model for FG success
+    # (don't forget) yardline_100 is the distance from the opponent's end zone
+    prob_success <- estimate_fg_success(yardline_100)
+    field_goal_success <- sample(c(TRUE, FALSE), 1,
+                                 prob = c(prob_success, 1 - prob_success))
     
     if (field_goal_success) {
-      # If successful, the team scores and the opponent starts from their own 25-yard line
+      # If successful, we assume a made FG => exit_drive = 1 (they scored)
+      # Opponent starts at their 25-yard line, for example
       list(down = 1, ytg = 10, fp = 25, exit_drive = 1)
     } else {
-      # If missed, the opponent takes over possession at the previous fp minus 7 yards,
-      # with the field position flipped.
+      # Missed FG => Opponent takes over around (fp - 7) yards downfield (your choice)
       list(down = 1, ytg = 10, fp = 100 - (fp - 7), exit_drive = 1)
     }
-  } 
-  # Handling the punt scenario.
-  else {  
-    # Simulating the punt distance (between 35 and 50 yards).
-    punt_distance <- sample(35:50, 1)
     
-    # The opponent takes over possession after the punt, ensuring fp does not go below 0.
-    # The field position is flipped so that it is correct for the new possession.
-    list(down = 1, ytg = 10, fp = 100 - max(fp - punt_distance, 0), exit_drive = 1)
+  } else {
+    # outcome == "punt"
+    # Simulate a punt distance (uniform between 35 and 50 yards, for example)
+    punt_distance <- sample(35:50, 1)
+    new_fp <- fp - punt_distance
+    # Flip field for opponent
+    list(down = 1, ytg = 10, fp = 100 - max(new_fp, 0), exit_drive = 1)
   }
 }

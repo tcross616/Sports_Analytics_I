@@ -1,4 +1,4 @@
-source("run_epoch.R")
+source("epoch.R")
 
 # This is our top level function. This is the function we will call when we want
 # to compute an expected points for a certain "state" of the game.  For now,
