@@ -1,0 +1,35 @@
+# Load necessary libraries
+library(nflfastR)
+library(dplyr)
+library(nnet)
+
+# Step 1: Get the data
+fourth_down_data <- nflfastR::load_pbp(2020) %>%
+  filter(down == 4) %>%
+  select(yardline_100, ydstogo, play_type)
+
+# Step 2: Prepare the data
+fourth_down_data <- fourth_down_data %>%
+  mutate(play_category = case_when(
+    play_type %in% c("run", "pass") ~ "go_for_it",
+    play_type == "punt" ~ "punt",
+    play_type == "field_goal" ~ "field_goal",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(play_category))
+
+# Step 3: Fit the multinomial regression model
+model <- multinom(play_category ~ yardline_100 + ydstogo, data = fourth_down_data)
+
+# Step 4: Incorporate the model into your simulation
+estimate_decision_probabilities <- function(yardline, ytg) {
+  prob_decisions <- predict(model, newdata = data.frame(yardline_100 = yardline, ydstogo = ytg), type = "probs")
+  return(prob_decisions)
+}
+
+# Example usage
+yardline <- 40  # Example field position
+ytg <- 3        # Example yards to go
+probabilities <- estimate_decision_probabilities(yardline, ytg)
+print(probabilities)
+probabilities
