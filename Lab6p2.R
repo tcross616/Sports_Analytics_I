@@ -1,4 +1,4 @@
-setwd("C:/Users/puckh/Desktop/Brice Documents/Fourth Year/Sports Analytics")
+
 df <- read.csv("nhl_pbp20162017.csv")
 
 library(ggplot2)
