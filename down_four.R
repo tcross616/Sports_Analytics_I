@@ -26,6 +26,7 @@ down_four <- function(ytg, fp) {
       # First down achieved: new set of downs, continue the drive
       list(down = 1, ytg = 10, fp = new_fp, exit_drive = 0)
     } else {
+      
       # Failed conversion => turnover on downs => flip field position
       list(down = 1, ytg = 10, fp = 100 - new_fp, exit_drive = 1)
     }
