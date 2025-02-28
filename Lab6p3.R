@@ -7,5 +7,5 @@ ggplot(coach_shots_df, aes(x = xC, y = yC)) +
   stat_density2d(aes(fill = ..level..), geom = "polygon") +
   scale_fill_gradient(low = "blue", high = "red") +
   theme_minimal() +
-  labs(title = paste("Shot Success Probability for", selected_coach), x = "X Coordinate", y = "Y Coordinate")
+  labs(title = paste("Shot Success Probability for", selected_coach))
 
