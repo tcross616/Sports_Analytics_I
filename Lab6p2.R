@@ -8,7 +8,7 @@ library(ggpubr)
 
 
 # Filter Shot, goal, miss
-df_shots <- df %>% filter(Event %in% c("SHOT", "GOAL","MISS"))
+df_shots <- df %>% filter(Event %in% c("SHOT", "GOAL", "MISS", "BLOCK"))
 df_shots <- dplyr::select(df_shots, xC, yC)
 
 
