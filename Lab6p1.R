@@ -1,9 +1,8 @@
 shots_df <- read.csv("nhl_pbp20162017.csv")
-# Load necessary packages
 library(dplyr)
 library(ggplot2)
 
-# Filter shot-related events
+# Filter all shot-related events
 shots_df <- shots_df %>%
   #filtering into shots for all possible outcomes of a shot
   filter(Event %in% c("SHOT", "GOAL", "MISS", "BLOCK")) %>%
