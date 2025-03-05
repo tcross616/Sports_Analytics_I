@@ -3,9 +3,6 @@ shots_df <- read.csv("nhl_pbp20162017.csv")
 library(dplyr)
 library(ggplot2)
 
-# Load dataset (replace with actual file path)
-shots_df <- read.csv("your_file.csv")
-shots_df
 # Filter shot-related events
 shots_df <- shots_df %>%
   #filtering into shots for all possible outcomes of a shot
