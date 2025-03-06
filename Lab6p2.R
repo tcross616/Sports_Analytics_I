@@ -1,4 +1,3 @@
-
 df <- read.csv("nhl_pbp20162017.csv")
 
 library(ggplot2)
@@ -61,4 +60,34 @@ ggplot(test_data, aes(x = shot_count, y = predicted_shot_rate)) +
        x = "Actual Shot Rate",
        y = "Predicted Shot Rate") +
   theme_minimal()
+
+
+### ---- OPTION 3: Bivariate Gaussian Distribution ---- ###
+
+# Function to calculate shot rate using bivariate Gaussian kernel
+calculate_shot_rate <- function(x0, y0, data, h = 10) {
+  weights <- exp(-((data$xC - x0)^2 + (data$yC - y0)^2) / (2 * h^2))
+  return(sum(weights) / sum(exp(-(0^2)/(2 * h^2))))
+}
+
+# Create grid of points
+x_grid <- seq(-100, 100, by = 5)
+y_grid <- seq(-42.5, 42.5, by = 5)
+grid_points <- expand.grid(xC = x_grid, yC = y_grid)
+
+# Calculate shot rate for each grid point
+grid_points$shot_rate <- mapply(
+  function(x, y) calculate_shot_rate(x, y, df_shots),
+  grid_points$xC,
+  grid_points$yC
+)
+
+# Plot the Gaussian smoothed shot rate
+ggplot(grid_points, aes(x = xC, y = yC, fill = shot_rate)) +
+  geom_tile() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  labs(title = "Shot Rate Heatmap (Gaussian Smoothing)",
+       x = "xC (Rink Location)",
+       y = "yC (Rink Location)")
 
