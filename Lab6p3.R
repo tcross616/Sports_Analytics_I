@@ -11,11 +11,15 @@ coach_shots_df1 <- coach_shots_df %>%
     Seconds_Elapsed = as.numeric(Seconds_Elapsed),
     Period = as.numeric(Period), 
     point_diff = Home_Score - Away_Score,  # Point Differential to determine shot rate
+<<<<<<< Updated upstream
 
     shot_on_goal = ifelse(Event %in% c("GOAL", "BLOCK"), 1, 0),
 
     shot_on_goal = ifelse(Event %in% c("GOAL", "BLOCK"), 1, 0),# define shot on goal as a goal or block
 
+=======
+    shot_on_goal = ifelse(Event %in% c("GOAL", "BLOCK"), 1, 0),# define shot on goal as a goal or block
+>>>>>>> Stashed changes
     time_block = cut(Seconds_Elapsed %% 1200, 
                      breaks = c(0, 400, 800, 1200), #separating time into the periods
                      labels = c("Early", "Mid", "Late"), #Type of 
