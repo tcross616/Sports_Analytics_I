@@ -1,6 +1,6 @@
 # 1. Load models
 source("logistic_regression.R")
-source("multimodal_reg.R")
+source("multimodal_reg")
 
 # 2. Load low-level simulation code
 source("down_one.R")
