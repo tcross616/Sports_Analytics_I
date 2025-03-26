@@ -101,10 +101,10 @@ simulate_play <- function(play_data, model_parameters) {
 }
 
 # Example usage
-# Sample a random play from the dataset (you can select based on any conditions)
+# Sampled a random play from the dataset (you can select based on any conditions)
 random_play <- data[sample(1:nrow(data), 1), ]
 
-# Define model parameters for the Gaussian Mixture Model (you can adjust as needed)
+# Define model parameters for the Gaussian Mixture Model (we can adjust as needed)
 model_parameters <- list(
   num_components = 3,
   means = c(2, 15, 30),  # Example: short, medium, long gains
@@ -112,7 +112,7 @@ model_parameters <- list(
   weights = c(0.5, 0.3, 0.2)
 )
 
-# Simulate the play and get the results
+# Simulating the play and getting the results
 play_results <- simulate_play(random_play, model_parameters)
 
 # Output the results
