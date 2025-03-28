@@ -11,9 +11,15 @@ coin_flip <- function(probability) {
 }
 
 # Example probabilities for coin-flips (these are rough estimates)
-fumble_prob <- 0.02    # Fumble probability (based on NFL data)
-interception_prob <- 0.02  # Interception probability
-incompletion_prob <- 0.1    # Incompletion probability (for passing plays)
+fumble_prob <- pbp_data %>%
+  summarise(prob = mean(fumble == 1, na.rm = TRUE))
+interception_prob <- pbp_data %>%
+  filter(play_type == "pass") %>%
+  summarise(prob = mean(interception == 1, na.rm = TRUE)) %>%
+  pull(prob)
+incompletion_prob <-pbp_data %>%
+  filter(play_type == "pass") %>%
+  summarise(prob = mean(!complete_pass, na.rm = TRUE)) 
 
 # Function to simulate events: fumble, interception, incompletion
 simulate_play_events <- function(play_data) {
