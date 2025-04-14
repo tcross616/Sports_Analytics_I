@@ -17,8 +17,7 @@ analyze_receiver_epa <- function(plays_data) {
     ) %>%
     filter(!is.na(receiver_position)) %>%
     filter(receiver_position %in% c("WR", "RB", "TE"))
-  
-  return(receiver_stats)
+
 }
 
 # Function to create visualization
@@ -54,8 +53,6 @@ get_team_insights <- function(receiver_stats) {
         TRUE ~ "No clear recommendation"
       )
     )
-  
-  return(team_insights)
 }
 
 # Main analysis function
