@@ -1,5 +1,5 @@
 # Example usage of receiver_epa_analysis.R
-
+### Analysis for 2023 season worst teams Chargers, Commanders, Cardinals, Panthers, Giants
 # First, make sure you have the required packages
 if (!requireNamespace("tidyverse", quietly = TRUE)) {
   install.packages("tidyverse")
@@ -16,10 +16,10 @@ source("receiver_epa_analysis.R")
 
 # Load NFL play-by-play data using nflfastR
 # You can choose any season from 1999-2023
-pbp_data <- nflfastR::load_pbp(2023)  # For 2023 season
+pbp_data <- nflfastR::load_pbp(2024)  # For 2024 season
 
 # Print the number of observations
-cat("Loaded", nrow(pbp_data), "plays from the 2023 season\n")
+cat("Loaded", nrow(pbp_data), "plays from the 2024 season\n")
 
 # Run the receiver EPA analysis
 cat("Running receiver EPA analysis...\n")
