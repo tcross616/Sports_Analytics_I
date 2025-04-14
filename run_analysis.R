@@ -50,8 +50,65 @@ print(chiefs_results$epa_plot)
 
 # Optional: Save results to CSV
 cat("\n=== Saving Results to CSV ===\n")
-write.csv(results$receiver_stats, "receiver_stats.csv", row.names = FALSE)
-write.csv(results$team_insights, "team_insights.csv", row.names = FALSE)
-cat("Results saved to receiver_stats.csv and team_insights.csv\n")
+tryCatch({
+  write.csv(results$receiver_stats, "receiver_stats.csv", row.names = FALSE)
+  write.csv(results$team_insights, "team_insights.csv", row.names = FALSE)
+  cat("Results saved to receiver_stats.csv and team_insights.csv\n")
+}, error = function(e) {
+  cat("Error saving results to CSV:", e$message, "\n")
+})
+
+# Save team-specific results
+tryCatch({
+  write.csv(chiefs_results$receiver_stats, "chiefs_receiver_stats.csv", row.names = FALSE)
+  cat("Chiefs results saved to chiefs_receiver_stats.csv\n")
+}, error = function(e) {
+  cat("Error saving Chiefs results to CSV:", e$message, "\n")
+})
+
+# Generate a plot highlighting the KC position groups compared to league average
+cat("\n=== Creating Comparison Visualization ===\n")
+tryCatch({
+  # Calculate league average EPA per target by position
+  league_avg <- results$receiver_stats %>%
+    group_by(receiver_position) %>%
+    summarize(
+      league_avg_epa = mean(epa_per_target, na.rm = TRUE),
+      .groups = "drop"
+    )
+  
+  # Create comparison data
+  if (nrow(chiefs_results$receiver_stats) > 0) {
+    comparison_data <- chiefs_results$receiver_stats %>%
+      left_join(league_avg, by = "receiver_position") %>%
+      mutate(
+        diff_from_avg = epa_per_target - league_avg_epa,
+        better_than_avg = diff_from_avg > 0
+      )
+    
+    # Create comparison plot
+    comparison_plot <- ggplot(comparison_data, aes(x = receiver_position, y = diff_from_avg, fill = better_than_avg)) +
+      geom_bar(stat = "identity") +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+      labs(
+        title = "Chiefs EPA/Target vs. League Average by Position",
+        x = "Position",
+        y = "Difference from League Average EPA/Target",
+        fill = "Better than Average"
+      ) +
+      scale_fill_manual(values = c("TRUE" = "green", "FALSE" = "red")) +
+      theme_minimal()
+    
+    print(comparison_plot)
+    
+    # Save plot
+    ggsave("chiefs_vs_league_avg.png", comparison_plot, width = 8, height = 6)
+    cat("Comparison visualization saved to chiefs_vs_league_avg.png\n")
+  } else {
+    cat("Insufficient Chiefs data for comparison visualization\n")
+  }
+}, error = function(e) {
+  cat("Error creating comparison visualization:", e$message, "\n")
+})
 
 cat("\nAnalysis complete!\n") 

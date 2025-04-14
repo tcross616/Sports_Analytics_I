@@ -3,30 +3,48 @@ library(tidyverse)
 library(nflfastR)
 library(ggplot2)
 
+# Function to load player position data
+load_player_positions <- function() {
+  # Get player position data from nflfastR
+  # This includes all NFL players with their positions
+  players <- nflfastR::fast_scraper_roster(seasons = 2023)
+  
+  # Return the position data
+  return(players)
+}
+
 # Function to calculate EPA per target by position
 analyze_receiver_epa <- function(plays_data) {
-  # Find the correct receiver column name
-  receiver_cols <- c("receiver_player_position", "receiver_position", "receiver")
-  receiver_col <- receiver_cols[receiver_cols %in% names(plays_data)][1]
+  # Load player position data
+  player_positions <- load_player_positions()
   
-  if (is.na(receiver_col)) {
-    stop("No receiver position column found in the data")
-  }
-  
-  # Filter for pass plays and calculate EPA per target
-  receiver_stats <- plays_data %>%
+  # Filter for pass plays
+  pass_plays <- plays_data %>%
     filter(play_type == "pass") %>%
-    # Use the correct column name dynamically
-    group_by(!!sym(receiver_col), posteam) %>%
-    reframe(
+    filter(!is.na(receiver_player_id)) # Only include plays with a receiver
+  
+  # Get receiver position by joining with player data
+  receiver_stats <- pass_plays %>%
+    left_join(
+      player_positions %>% 
+        select(player_id = gsis_id, position),
+      by = c("receiver_player_id" = "player_id")
+    ) %>%
+    # Filter for WR, RB, TE positions
+    filter(position %in% c("WR", "RB", "TE")) %>%
+    # Group by position and team
+    group_by(position, posteam) %>%
+    # Calculate EPA stats
+    summarise(
       total_targets = n(),
       total_epa = sum(epa, na.rm = TRUE),
       epa_per_target = ifelse(total_targets > 0, total_epa / total_targets, 0),
       .groups = "drop"
     ) %>%
-    filter(!is.na(receiver_position)) %>%
-    filter(receiver_position %in% c("WR", "RB", "TE"))
-
+    # Rename for consistency with original code
+    rename(receiver_position = position)
+  
+  return(receiver_stats)
 }
 
 # Function to create visualization
@@ -48,10 +66,10 @@ get_team_insights <- function(receiver_stats) {
   # First handle teams with data
   team_insights <- receiver_stats %>%
     group_by(posteam) %>%
-    # Check if we have at least one valid value for each position
-    filter(n() >= 3) %>% # Need data for at least 3 positions to compare
+    # Check if we have data for all positions (WR, RB, TE)
     summarize(
-      has_data = all(!is.na(epa_per_target) & is.finite(epa_per_target)),
+      position_count = n_distinct(receiver_position),
+      has_data = position_count >= 3,
       .groups = "drop"
     ) %>%
     filter(has_data)
@@ -74,7 +92,8 @@ get_team_insights <- function(receiver_stats) {
     filter(posteam %in% team_insights$posteam) %>%
     group_by(posteam) %>%
     summarize(
-      positions_present = list(unique(receiver_position)),
+      # Instead of storing positions as a list, store as comma-separated string
+      positions_present = paste(unique(receiver_position), collapse = ","),
       position_count = n_distinct(receiver_position),
       best_position = if(any(!is.na(epa_per_target))) {
         receiver_position[which.max(epa_per_target)]
@@ -106,6 +125,8 @@ get_team_insights <- function(receiver_stats) {
         TRUE ~ "Insufficient data for recommendation"
       )
     )
+  
+  return(team_insights)
 }
 
 # Main analysis function
@@ -142,4 +163,8 @@ run_receiver_analysis <- function(plays_data) {
 # 3. View the results
 # print(results$receiver_stats)
 # print(results$epa_plot)
-# View(results$team_insights) 
+# print(results$team_insights)
+# 
+# 4. Save to CSV (optional)
+# write.csv(results$receiver_stats, "receiver_stats.csv", row.names = FALSE)
+# write.csv(results$team_insights, "team_insights.csv", row.names = FALSE) 
