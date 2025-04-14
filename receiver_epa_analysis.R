@@ -24,13 +24,9 @@ analyze_receiver_epa <- function(plays_data) {
       epa_per_target = ifelse(total_targets > 0, total_epa / total_targets, 0),
       .groups = "drop"
     ) %>%
-    filter(!is.na(!!sym(receiver_col))) %>%
-    # Update position filters to match nflfastR position codes
-    filter(!!sym(receiver_col) %in% c("WR", "RB", "TE")) %>%
-    # Rename column for consistency
-    rename(receiver_position = !!sym(receiver_col))
-  
-  return(receiver_stats)
+    filter(!is.na(receiver_position)) %>%
+    filter(receiver_position %in% c("WR", "RB", "TE"))
+
 }
 
 # Function to create visualization
@@ -110,8 +106,6 @@ get_team_insights <- function(receiver_stats) {
         TRUE ~ "Insufficient data for recommendation"
       )
     )
-  
-  return(team_insights)
 }
 
 # Main analysis function
@@ -148,8 +142,4 @@ run_receiver_analysis <- function(plays_data) {
 # 3. View the results
 # print(results$receiver_stats)
 # print(results$epa_plot)
-# print(results$team_insights)
-# 
-# 4. Save to CSV (optional)
-# write.csv(results$receiver_stats, "receiver_stats.csv", row.names = FALSE)
-# write.csv(results$team_insights, "team_insights.csv", row.names = FALSE) 
+# View(results$team_insights) 
